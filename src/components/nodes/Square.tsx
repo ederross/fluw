@@ -1,6 +1,6 @@
 'use client'
-import { memo, useState } from 'react'
-import { NodeProps, Handle, Position, NodeResizer } from 'reactflow'
+import { memo } from 'react'
+import { Handle, NodeProps, NodeResizer, Position } from 'reactflow'
 
 export function Square({ selected }: NodeProps) {
   return (
