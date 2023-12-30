@@ -4,7 +4,7 @@ import { Handle, NodeProps, NodeResizer, Position } from 'reactflow'
 
 export function Square({ selected }: NodeProps) {
   return (
-    <div className="h-full min-h-[200px] w-full min-w-[200px] overflow-hidden rounded-xl border border-zinc-300 bg-white px-8 shadow-lg">
+    <div className="h-full min-h-[200px] w-full min-w-[200px] overflow-hidden rounded-xl border border-zinc-300 bg-white shadow-lg">
       <NodeResizer
         minWidth={200}
         minHeight={200}

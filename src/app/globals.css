@@ -16,13 +16,13 @@
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1,h2,h3,h4,p, span {
+    @apply tracking-tighter
+  }
 }
+
 
