@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import Dagre from '@dagrejs/dagre'
 import * as Toolbar from '@radix-ui/react-toolbar'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { ArrowLeft } from 'lucide-react'
 
@@ -12,6 +13,7 @@ import ReactFlow, {
   ConnectionMode,
   Controls,
   Node,
+  Panel,
   ReactFlowProvider,
   addEdge,
   useEdgesState,
@@ -22,11 +24,14 @@ import 'reactflow/dist/style.css'
 import Square from '@/components/nodes/Square'
 
 import DefaultEdge from '@/components/edges/DefaultEdge'
+import Main from '@/components/nodes/Main'
+import { adjustNodesWithMainNodePosition } from '@/lib/layoutingFlow/nodesAdjust'
 import { zinc } from 'tailwindcss/colors'
 
 // Nodes, Edges = Connections
 const panOnDrag = [1, 2]
 const NODE_TYPES = {
+  main: Main,
   square: Square,
 }
 const EDGE_TYPES = {
@@ -34,15 +39,88 @@ const EDGE_TYPES = {
 }
 
 // Conteúdo inicial
-const INITIAL_NODES = [] satisfies Node[]
+const INITIAL_NODES = [
+  {
+    id: 'IA',
+    type: 'main',
+    data: { label: 'Inteligência Artificial (IA)' },
+    position: { x: 0, y: 0 },
+  },
+  {
+    id: 'ML',
+    type: 'square',
+    data: { label: 'Machine Learning (ML)' },
+    position: { x: 100, y: 100 },
+  },
+  {
+    id: 'DL',
+    type: 'square',
+    data: { label: 'Deep Learning (DL)' },
+    position: { x: 200, y: 200 },
+  },
+  {
+    id: 'Boom',
+    type: 'square',
+    data: { label: 'Do nascimento ao boom' },
+    position: { x: 300, y: 300 },
+  },
+  {
+    id: 'Evolution',
+    type: 'square',
+    data: { label: 'Tempo e evolução' },
+    position: { x: 400, y: 400 },
+  },
+  {
+    id: 'Vision',
+    type: 'square',
+    data: { label: 'Visão Computacional' },
+    position: { x: 500, y: 500 },
+  },
+] satisfies Node[]
 
 let id = 0
 const getId = () => `dndnode_${id++}`
 
+const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}))
+
+const getLayoutedElements = (nodes: any, edges: any, options: any) => {
+  g.setGraph({ rankdir: options.direction })
+
+  edges.forEach((edge: any) => g.setEdge(edge.source, edge.target))
+  nodes.forEach((node: any) => g.setNode(node.id, node))
+
+  Dagre.layout(g)
+
+  return {
+    nodes: nodes.map((node: any) => {
+      const { x, y } = g.node(node.id)
+
+      return { ...node, position: { x, y } }
+    }),
+    edges,
+  }
+}
+
 export default function Home() {
-  const [edges, setEdges, onEdgesChange] = useEdgesState([])
-  const [nodes, setNodes, onNodesChange] = useNodesState(INITIAL_NODES)
+  const [nodes, setNodes, onNodesChange] = useNodesState([])
+  const [edges, setEdges, onEdgesChange] = useEdgesState([
+    { id: 'IA-ML', source: 'IA', target: 'ML' },
+    { id: 'IA-DL', source: 'IA', target: 'DL' },
+    { id: 'IA-Boom', source: 'IA', target: 'Boom' },
+    { id: 'Boom-Evolution', source: 'Boom', target: 'Evolution' },
+    { id: 'Evolution-Vision', source: 'Evolution', target: 'Vision' },
+  ])
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null)
+
+  const onLayout = useCallback(
+    (direction: any) => {
+      const layouted = getLayoutedElements(nodes, edges, { direction })
+
+      setNodes([...layouted.nodes])
+      setEdges([...layouted.edges])
+    },
+    [nodes, edges, setNodes, setEdges],
+  )
 
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -102,9 +180,16 @@ export default function Home() {
     event.dataTransfer.effectAllowed = 'move'
   }
 
+  useEffect(() => {
+    const adjustedNodes: any[] = adjustNodesWithMainNodePosition(INITIAL_NODES)
+
+    setNodes(adjustedNodes)
+  }, [setNodes])
+  console.log(edges)
+
   return (
     <main className="min-h-screen w-full">
-      <div className="w-scren h-screen bg-white">
+      <div className="w-scren h-screen bg-yellow-50">
         <ReactFlowProvider>
           <ReactFlow
             nodeTypes={NODE_TYPES}
@@ -124,6 +209,7 @@ export default function Home() {
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}
+            fitView
           >
             <Background gap={12} size={2} color={zinc[200]} />
             <Controls />
