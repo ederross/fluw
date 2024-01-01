@@ -37,7 +37,7 @@ export function Main({ selected, data }: NodeProps) {
         className="-top-5 h-3 w-3 border-2 bg-blue-400/80"
       />
 
-      <p className="text-2xl">{data.label}</p>
+      <p className="text-2xl">{data.title}</p>
     </div>
   )
 }

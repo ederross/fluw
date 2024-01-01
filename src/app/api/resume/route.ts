@@ -18,49 +18,34 @@ export const runtime = 'edge'
 
 export async function GET(req: Request) {
   try {
-    // Extract the `messages` from the body of the request
-    // Create prompt text with user input
-    const prompt = `return a recipe for avocado with chicken`
-    // Define the JSON Schema by creating a schema object
-    const schema = {
-      type: 'object',
-      properties: {
-        dish: {
-          type: 'string',
-          description: 'Descriptive title of the dish',
-        },
-        ingredients: {
-          type: 'array',
-          items: { type: 'string' },
-        },
-        instructions: {
-          type: 'array',
-          description: 'Steps to prepare the recipe.',
-          items: { type: 'string' },
-        },
-      },
-    }
-
-    // Ask OpenAI for a streaming chat completion given the prompt
-    // const response = await openai.createCompletion({
-    //   model: 'gpt-3.5-turbo-1106',
-    //   stream: true,
-    // })
     const completion = await openai.chat.completions.create({
       messages: [
         {
           role: 'system',
-          content: `Você é uma assistente especializada em resumos de todos os tipos de assuntos, designada para retornar apenas JSON. no formato de exemplo abaixo: 
+          content: `Você é uma assistente especializada em resumos de todos os tipos de assuntos, designada para retornar apenas um JSON. Separe tópicos e faça conexões assertivas entre estes tópicos, utilizando o conceito de Nodes e Edges da biblioteca ReactFlow. O JSON precisa estar no formato de exemplo abaixo: 
           {
             "subject": "Rússia Encanta o Mundo: Reflexões Sobre a Copa do Mundo de 2018",
             "description": "Está é uma descrição do assunto relacionado ao tema.",
-            "keypoints": [
+            "nodes": [
               {
-                title: "Example 01",
-                description: "Whis is the text explaining the example."
-              }
+                "id": "Exemplo01",
+                "type": "main",
+                "data": { "title": "O exemplo 01", description: "Texto de 300 caracteres sobre o title"},
+                "position": { "x": 0, "y": 0 }
+              },
+              {
+                "id": "Exemplo02",
+                "type": "main",
+                "data": { "title": "O exemplo 01", description: "Texto de 300 caracteres sobre o title"},
+                "position": { "x": 0, "y": 0 }
+              },
+            ],
+            "edges": [
+              { "id": "Exemplo-01", "source": "Exemplo01", "target": "Exemplo02" },
             ]
           }
+
+          Obs: Sempre utilize apenas 1 "main" e o restante "square" como type dos nodes.
           `,
         },
         {
@@ -77,10 +62,7 @@ export async function GET(req: Request) {
       model: 'gpt-3.5-turbo-1106',
       response_format: { type: 'json_object' },
     })
-    // Convert the response into a friendly text-stream
-    // const stream = OpenAIStream(response)
-    // Respond with the stream
-    // return new StreamingTextResponse(stream)
+
     return NextResponse.json(completion.choices[0].message.content)
   } catch (error) {
     console.log('asdasdas', error)

@@ -84,26 +84,20 @@ let id = 0
 const getId = () => `dndnode_${id++}`
 
 export default function Home() {
-  const scrollableMessage = useRef(null)
-
   const [nodes, setNodes, onNodesChange] = useNodesState([])
-  const [edges, setEdges, onEdgesChange] = useEdgesState([
-    { id: 'IA-ML', source: 'IA', target: 'ML' },
-    { id: 'IA-DL', source: 'IA', target: 'DL' },
-    { id: 'IA-Boom', source: 'IA', target: 'Boom' },
-    { id: 'Boom-Evolution', source: 'Boom', target: 'Evolution' },
-    { id: 'Evolution-Vision', source: 'Evolution', target: 'Vision' },
-  ])
+  const [edges, setEdges, onEdgesChange] = useEdgesState([])
+  const [resume, setResume] = useState<IResumeResponse>()
 
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null)
 
-  async function fetchData() {
+  async function resumeSubject() {
     try {
       const response = await axios.get('/api/resume')
       // A resposta bem-sucedida será acessível em response.data
       console.log(response.data)
-      const theResponseJSON = JSON.parse(response.data)
-      console.log(theResponseJSON.subject)
+      const resumeData = JSON.parse(response.data)
+
+      setResume(resumeData)
       return response.data
     } catch (err) {
       // Trate os erros aqui
@@ -170,10 +164,13 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const adjustedNodes: any[] = adjustNodesWithMainNodePosition(INITIAL_NODES)
-
-    setNodes(adjustedNodes)
-  }, [setNodes])
+    if (resume) {
+      const nodesData = resume.nodes
+      const adjustedNodes = adjustNodesWithMainNodePosition(nodesData)
+      setNodes(adjustedNodes)
+      setEdges(resume.edges)
+    }
+  }, [setNodes, setEdges, resume])
 
   return (
     <main className="min-h-screen w-full">
@@ -240,11 +237,16 @@ export default function Home() {
           {/* put animation below -> h-[85%] */}
           <div className="5xl:w-[1920px] fixed bottom-0 left-1/2 mx-auto h-[172px] w-[1280px] -translate-x-1/2 rounded-t-3xl border bg-white px-12 py-12 shadow-xl lg:w-[928px] xl:w-[1280px] 2xl:w-[1280px]">
             <p className="mb-2 font-normal text-zinc-400">Groselha Podcast</p>
-            <h2 className="text-3xl font-semibold">
+            <h2 className="mb-2 text-3xl font-semibold">
               O caminho estoico para uma vida melhor
             </h2>
+            <p className="text-zinc-300">{resume?.description}</p>
 
-            <Button onClick={fetchData} type="submit" className="bg-blue-500">
+            <Button
+              onClick={resumeSubject}
+              type="submit"
+              className="bg-blue-500"
+            >
               Send
             </Button>
           </div>

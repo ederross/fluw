@@ -2,9 +2,9 @@
 import { memo } from 'react'
 import { Handle, NodeProps, NodeResizer, Position } from 'reactflow'
 
-export function Square({ selected }: NodeProps) {
+export function Square({ data, selected }: NodeProps) {
   return (
-    <div className="h-full min-h-[200px] w-full min-w-[200px] overflow-hidden rounded-xl border border-zinc-300 bg-white shadow-lg">
+    <div className="flex h-full min-h-[200px] w-full min-w-[200px] items-center justify-center overflow-hidden rounded-xl border border-zinc-300 bg-white shadow-lg">
       <NodeResizer
         minWidth={200}
         minHeight={200}
@@ -36,6 +36,8 @@ export function Square({ selected }: NodeProps) {
         position={Position.Top}
         className="-top-5 h-3 w-3 border-2 bg-blue-400/80"
       />
+      <h2 className="text-2xl">{data.title}</h2>
+      <p>{data.description}</p>
     </div>
   )
 }
