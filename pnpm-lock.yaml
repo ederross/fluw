@@ -41,6 +41,9 @@ dependencies:
   framer:
     specifier: ^2.4.1
     version: 2.4.1(framer-motion@10.16.16)(react-dom@18.2.0)(react@18.2.0)
+  framer-motion:
+    specifier: ^10.16.16
+    version: 10.16.16(react-dom@18.2.0)(react@18.2.0)
   lucide-react:
     specifier: ^0.303.0
     version: 0.303.0(react@18.2.0)

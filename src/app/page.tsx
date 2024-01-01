@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import Square from '@/components/nodes/Square'
 import * as Toolbar from '@radix-ui/react-toolbar'
-import { useChat, useCompletion } from 'ai/react'
+import DefaultEdge from '@/components/edges/DefaultEdge'
+import { useCallback, useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import axios from 'axios'
-import { useCallback, useEffect, useRef, useState } from 'react'
-
-import { ArrowLeft } from 'lucide-react'
-
+import { motion, useAnimation, useReducedMotion } from 'framer-motion'
 import ReactFlow, {
   Background,
   Connection,
@@ -21,14 +21,11 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 
-import Square from '@/components/nodes/Square'
+import { ArrowLeft } from 'lucide-react'
 
-import DefaultEdge from '@/components/edges/DefaultEdge'
 import Main from '@/components/nodes/Main'
 import { adjustNodesWithMainNodePosition } from '@/lib/layoutingFlow/nodesAdjust'
 import { zinc } from 'tailwindcss/colors'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 
 // Nodes, Edges = Connections
 const panOnDrag = [1, 2]
@@ -41,52 +38,57 @@ const EDGE_TYPES = {
 }
 
 // Conteúdo inicial
-const INITIAL_NODES = [
-  {
-    id: 'IA',
-    type: 'main',
-    data: { label: 'Inteligência Artificial (IA)' },
-    position: { x: 0, y: 0 },
-  },
-  {
-    id: 'ML',
-    type: 'square',
-    data: { label: 'Machine Learning (ML)' },
-    position: { x: 100, y: 100 },
-  },
-  {
-    id: 'DL',
-    type: 'square',
-    data: { label: 'Deep Learning (DL)' },
-    position: { x: 200, y: 200 },
-  },
-  {
-    id: 'Boom',
-    type: 'square',
-    data: { label: 'Do nascimento ao boom' },
-    position: { x: 300, y: 300 },
-  },
-  {
-    id: 'Evolution',
-    type: 'square',
-    data: { label: 'Tempo e evolução' },
-    position: { x: 400, y: 400 },
-  },
-  {
-    id: 'Vision',
-    type: 'square',
-    data: { label: 'Visão Computacional' },
-    position: { x: 500, y: 500 },
-  },
-] satisfies Node[]
+// const INITIAL_NODES = [
+//   {
+//     id: 'IA',
+//     type: 'main',
+//     data: { label: 'Inteligência Artificial (IA)' },
+//     position: { x: 0, y: 0 },
+//   },
+//   {
+//     id: 'ML',
+//     type: 'square',
+//     data: { label: 'Machine Learning (ML)' },
+//     position: { x: 100, y: 100 },
+//   },
+//   {
+//     id: 'DL',
+//     type: 'square',
+//     data: { label: 'Deep Learning (DL)' },
+//     position: { x: 200, y: 200 },
+//   },
+//   {
+//     id: 'Boom',
+//     type: 'square',
+//     data: { label: 'Do nascimento ao boom' },
+//     position: { x: 300, y: 300 },
+//   },
+//   {
+//     id: 'Evolution',
+//     type: 'square',
+//     data: { label: 'Tempo e evolução' },
+//     position: { x: 400, y: 400 },
+//   },
+//   {
+//     id: 'Vision',
+//     type: 'square',
+//     data: { label: 'Visão Computacional' },
+//     position: { x: 500, y: 500 },
+//   },
+// ] satisfies Node[]
 
 let id = 0
 const getId = () => `dndnode_${id++}`
 
 export default function Home() {
+  const controls = useAnimation()
+  const [isOpen, setIsOpen] = useState(false)
+  const shouldReduceMotion = useReducedMotion()
+  const closedX = shouldReduceMotion ? 712 : 172
+  const [resume, setResume] = useState<IResumeResponse>()
+
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
-  const [resume, setResume] = useState<IResumeResponse>()
 
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null)
 
@@ -235,21 +237,25 @@ export default function Home() {
             ></Toolbar.Button>
           </Toolbar.Root>
           {/* put animation below -> h-[85%] */}
-          <div className="5xl:w-[1920px] fixed bottom-0 left-1/2 mx-auto h-[172px] w-[1280px] -translate-x-1/2 rounded-t-3xl border bg-white px-12 py-12 shadow-xl lg:w-[928px] xl:w-[1280px] 2xl:w-[1280px]">
+          <motion.div
+            animate={{
+              height: isOpen ? 712 : closedX,
+            }}
+            className="5xl:w-[1920px] fixed bottom-0 left-1/2 mx-auto min-h-[172px] w-[1280px] -translate-x-1/2 rounded-t-3xl border bg-white px-12 py-12 shadow-xl lg:w-[928px] xl:w-[1280px] 2xl:w-[1280px]"
+          >
+            <Button
+              onClick={() => setIsOpen(!isOpen)}
+              type="submit"
+              className="bg-blue-500"
+            >
+              Expand
+            </Button>
             <p className="mb-2 font-normal text-zinc-400">Groselha Podcast</p>
             <h2 className="mb-2 text-3xl font-semibold">
               O caminho estoico para uma vida melhor
             </h2>
             <p className="text-zinc-300">{resume?.description}</p>
-
-            <Button
-              onClick={resumeSubject}
-              type="submit"
-              className="bg-blue-500"
-            >
-              Send
-            </Button>
-          </div>
+          </motion.div>
         </ReactFlowProvider>
       </div>
     </main>
