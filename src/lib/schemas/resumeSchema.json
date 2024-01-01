@@ -1,0 +1,35 @@
+{
+  "title": "This is a title",
+  "description": "This is a 300 description",
+  "nodes": [
+    {
+      "id": "Eder",
+      "type": "main",
+      "data": {
+        "label": "Eder, o Jovem Visionário"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": "Coragem",
+      "type": "square",
+      "data": {
+        "label": "Coragem e Determinação"
+      },
+      "position": {
+        "x": 200,
+        "y": 100
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "Eder-Coragem",
+      "source": "Eder",
+      "target": "Coragem"
+    }
+  ]
+}

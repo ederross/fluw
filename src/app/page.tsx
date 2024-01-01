@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import Dagre from '@dagrejs/dagre'
 import * as Toolbar from '@radix-ui/react-toolbar'
-import { useCallback, useEffect, useState } from 'react'
+import { useChat, useCompletion } from 'ai/react'
+import axios from 'axios'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { ArrowLeft } from 'lucide-react'
 
@@ -13,7 +14,6 @@ import ReactFlow, {
   ConnectionMode,
   Controls,
   Node,
-  Panel,
   ReactFlowProvider,
   addEdge,
   useEdgesState,
@@ -27,6 +27,8 @@ import DefaultEdge from '@/components/edges/DefaultEdge'
 import Main from '@/components/nodes/Main'
 import { adjustNodesWithMainNodePosition } from '@/lib/layoutingFlow/nodesAdjust'
 import { zinc } from 'tailwindcss/colors'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 // Nodes, Edges = Connections
 const panOnDrag = [1, 2]
@@ -81,27 +83,9 @@ const INITIAL_NODES = [
 let id = 0
 const getId = () => `dndnode_${id++}`
 
-const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}))
-
-const getLayoutedElements = (nodes: any, edges: any, options: any) => {
-  g.setGraph({ rankdir: options.direction })
-
-  edges.forEach((edge: any) => g.setEdge(edge.source, edge.target))
-  nodes.forEach((node: any) => g.setNode(node.id, node))
-
-  Dagre.layout(g)
-
-  return {
-    nodes: nodes.map((node: any) => {
-      const { x, y } = g.node(node.id)
-
-      return { ...node, position: { x, y } }
-    }),
-    edges,
-  }
-}
-
 export default function Home() {
+  const scrollableMessage = useRef(null)
+
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([
     { id: 'IA-ML', source: 'IA', target: 'ML' },
@@ -110,17 +94,22 @@ export default function Home() {
     { id: 'Boom-Evolution', source: 'Boom', target: 'Evolution' },
     { id: 'Evolution-Vision', source: 'Evolution', target: 'Vision' },
   ])
+
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null)
 
-  const onLayout = useCallback(
-    (direction: any) => {
-      const layouted = getLayoutedElements(nodes, edges, { direction })
-
-      setNodes([...layouted.nodes])
-      setEdges([...layouted.edges])
-    },
-    [nodes, edges, setNodes, setEdges],
-  )
+  async function fetchData() {
+    try {
+      const response = await axios.get('/api/resume')
+      // A resposta bem-sucedida será acessível em response.data
+      console.log(response.data)
+      const theResponseJSON = JSON.parse(response.data)
+      console.log(theResponseJSON.subject)
+      return response.data
+    } catch (err) {
+      // Trate os erros aqui
+      console.log('deu ruim cara', err)
+    }
+  }
 
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -185,11 +174,10 @@ export default function Home() {
 
     setNodes(adjustedNodes)
   }, [setNodes])
-  console.log(edges)
 
   return (
     <main className="min-h-screen w-full">
-      <div className="w-scren h-screen bg-yellow-50">
+      <div className="w-scren h-screen bg-white">
         <ReactFlowProvider>
           <ReactFlow
             nodeTypes={NODE_TYPES}
@@ -255,6 +243,10 @@ export default function Home() {
             <h2 className="text-3xl font-semibold">
               O caminho estoico para uma vida melhor
             </h2>
+
+            <Button onClick={fetchData} type="submit" className="bg-blue-500">
+              Send
+            </Button>
           </div>
         </ReactFlowProvider>
       </div>
