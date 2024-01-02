@@ -21,7 +21,7 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Expand } from 'lucide-react'
 
 import Main from '@/components/nodes/Main'
 import { adjustNodesWithMainNodePosition } from '@/lib/layoutingFlow/nodesAdjust'
@@ -81,7 +81,6 @@ let id = 0
 const getId = () => `dndnode_${id++}`
 
 export default function Home() {
-  const controls = useAnimation()
   const [isOpen, setIsOpen] = useState(false)
   const shouldReduceMotion = useReducedMotion()
   const closedX = shouldReduceMotion ? 712 : 172
@@ -198,7 +197,9 @@ export default function Home() {
             onDragOver={onDragOver}
             fitView
           >
-            <Background gap={12} size={2} color={zinc[200]} />
+            {!isOpen ? (
+              <Background gap={12} size={2} color={zinc[200]} />
+            ) : null}
             <Controls />
           </ReactFlow>
 
@@ -243,18 +244,32 @@ export default function Home() {
             }}
             className="5xl:w-[1920px] fixed bottom-0 left-1/2 mx-auto min-h-[172px] w-[1280px] -translate-x-1/2 rounded-t-3xl border bg-white px-12 py-12 shadow-xl lg:w-[928px] xl:w-[1280px] 2xl:w-[1280px]"
           >
-            <Button
-              onClick={() => setIsOpen(!isOpen)}
-              type="submit"
-              className="bg-blue-500"
-            >
-              Expand
-            </Button>
-            <p className="mb-2 font-normal text-zinc-400">Groselha Podcast</p>
-            <h2 className="mb-2 text-3xl font-semibold">
-              O caminho estoico para uma vida melhor
-            </h2>
-            <p className="text-zinc-300">{resume?.description}</p>
+            <div className="flex w-full  justify-between">
+              <div>
+                <p className="mb-2 font-normal text-zinc-400">
+                  Groselha Podcast
+                </p>
+                <h2 className="mb-2 text-3xl font-semibold">
+                  O caminho estoico para uma vida melhor
+                </h2>
+                <p className="text-zinc-300">{resume?.description}</p>
+              </div>
+              <div>
+                <div className="h-12 w-12 items-center gap-2 rounded-[12px] border bg-white p-[6px] lg:flex">
+                  <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    type="button"
+                    className="flex h-full w-full cursor-pointer items-center justify-center rounded-[8px] hover:bg-zinc-50"
+                  >
+                    {!isOpen ? (
+                      <ChevronsUpDown size={16} />
+                    ) : (
+                      <ChevronsDownUp size={16} />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
           </motion.div>
         </ReactFlowProvider>
       </div>
