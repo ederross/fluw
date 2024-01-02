@@ -1,19 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import Square from '@/components/nodes/Square'
-import * as Toolbar from '@radix-ui/react-toolbar'
 import DefaultEdge from '@/components/edges/DefaultEdge'
-import { useCallback, useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
+import Square from '@/components/nodes/Square'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import * as Toolbar from '@radix-ui/react-toolbar'
 import axios from 'axios'
-import { motion, useAnimation, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
+import { useCallback, useEffect, useState } from 'react'
 import ReactFlow, {
   Background,
   Connection,
   ConnectionMode,
   Controls,
-  Node,
   ReactFlowProvider,
   addEdge,
   useEdgesState,
@@ -21,7 +19,7 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 
-import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Expand } from 'lucide-react'
+import { ArrowLeft, ChevronsDownUp, ChevronsUpDown } from 'lucide-react'
 
 import Main from '@/components/nodes/Main'
 import { adjustNodesWithMainNodePosition } from '@/lib/layoutingFlow/nodesAdjust'
